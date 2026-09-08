@@ -10,6 +10,21 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the Orders API' });
 });
 
+// GET /health (liveness) - Shallow check verifying process availability
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// GET /ready (readiness) - Deep check verifying database dependency
+app.get('/ready', async (req, res) => {
+  try {
+    await db.ping();
+    res.status(200).send('READY');
+  } catch (err) {
+    res.status(503).send('NOT READY');
+  }
+});
+
 app.get('/orders', async (req, res) => {
   try {
     const result = await db.query('SELECT * FROM orders ORDER BY id DESC');
